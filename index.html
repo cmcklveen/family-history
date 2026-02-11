@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Family History</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>The McKlveen Family</h1>
+        <nav>
+            <a href="#photos" class="nav-link">Photos</a>
+            <a href="#news" class="nav-link">Family News</a>
+            <a href="#tree" class="nav-link">Family Tree</a>
+            <a href="#history" class="nav-link">Family History</a>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Photo Gallery Section -->
+        <section id="photos" class="section">
+            <h2>Family Photos</h2>
+            <div class="upload-area">
+                <input type="file" id="photo-upload" accept="image/*" multiple>
+                <label for="photo-upload" class="upload-btn">+ Add Photos</label>
+            </div>
+            <div id="photo-gallery" class="gallery">
+                <!-- Photos will be added here -->
+            </div>
+        </section>
+
+        <!-- Family News Section -->
+        <section id="news" class="section">
+            <h2>Family News</h2>
+            <button id="add-news-btn" class="add-btn">+ Add News</button>
+            <div id="news-form" class="form-container hidden">
+                <input type="text" id="news-title" placeholder="News Title">
+                <input type="date" id="news-date">
+                <textarea id="news-content" placeholder="What's the news?"></textarea>
+                <div class="form-buttons">
+                    <button id="save-news" class="save-btn">Save</button>
+                    <button id="cancel-news" class="cancel-btn">Cancel</button>
+                </div>
+            </div>
+            <div id="news-list" class="news-container">
+                <!-- News items will be added here -->
+            </div>
+        </section>
+
+        <!-- Family Tree Section -->
+        <section id="tree" class="section">
+            <h2>Family Tree</h2>
+            <button id="add-member-btn" class="add-btn">+ Add Family Member</button>
+            <div id="member-form" class="form-container hidden">
+                <input type="text" id="member-name" placeholder="Full Name">
+                <input type="text" id="member-birth" placeholder="Birth Year">
+                <input type="text" id="member-death" placeholder="Death Year (if applicable)">
+                <select id="member-generation">
+                    <option value="0">Generation 1 (Oldest)</option>
+                    <option value="1">Generation 2</option>
+                    <option value="2">Generation 3</option>
+                    <option value="3">Generation 4</option>
+                    <option value="4">Generation 5</option>
+                    <option value="5">Generation 6</option>
+                    <option value="6">Generation 7</option>
+                    <option value="7">Generation 8</option>
+                    <option value="8">Generation 9</option>
+                    <option value="9">Generation 10 (Youngest)</option>
+                </select>
+                <select id="member-parent">
+                    <option value="">-- Select Parent (optional) --</option>
+                </select>
+                <input type="text" id="member-spouse" placeholder="Spouse Name (optional)">
+                <div class="form-buttons">
+                    <button id="save-member" class="save-btn">Save</button>
+                    <button id="cancel-member" class="cancel-btn">Cancel</button>
+                </div>
+            </div>
+            <div id="family-tree" class="tree-container">
+                <!-- Family tree will be rendered here -->
+            </div>
+        </section>
+        <!-- Family History Section -->
+        <section id="history" class="section">
+            <h2>Family History</h2>
+            <button id="add-history-btn" class="add-btn">+ Add Story</button>
+            <div id="history-form" class="form-container hidden">
+                <input type="text" id="history-title" placeholder="Story Title (e.g., How Grandpa Came to America)">
+                <input type="text" id="history-era" placeholder="Time Period (e.g., 1920s, Early 1900s)">
+                <textarea id="history-content" placeholder="Tell the story..."></textarea>
+                <div class="form-buttons">
+                    <button id="save-history" class="save-btn">Save</button>
+                    <button id="cancel-history" class="cancel-btn">Cancel</button>
+                </div>
+            </div>
+            <div id="history-list" class="history-container">
+                <!-- History stories will be added here -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Our Family History</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
