@@ -1,9 +1,14 @@
 // Family History Website - JavaScript (API-backed)
 
+// Detect base path for API calls (works locally and behind subpath proxy)
+const BASE = window.location.pathname.replace(/\/$/, '');
+
 let photos = [];
 let news = [];
 let familyMembers = [];
 let histories = [];
+let posts = [];
+let currentUser = null;
 
 // DOM Elements
 const photoUpload = document.getElementById('photo-upload');
@@ -19,21 +24,26 @@ const memberParentSelect = document.getElementById('member-parent');
 // ========== DATA LOADING ==========
 
 async function loadAll() {
-    const [photosRes, newsRes, membersRes, historiesRes] = await Promise.all([
-        fetch('/api/photos').then(r => r.json()),
-        fetch('/api/news').then(r => r.json()),
-        fetch('/api/members').then(r => r.json()),
-        fetch('/api/histories').then(r => r.json())
+    await checkAuth();
+
+    const [photosRes, newsRes, membersRes, historiesRes, postsRes] = await Promise.all([
+        fetch(`${BASE}/api/photos`).then(r => r.json()),
+        fetch(`${BASE}/api/news`).then(r => r.json()),
+        fetch(`${BASE}/api/members`).then(r => r.json()),
+        fetch(`${BASE}/api/histories`).then(r => r.json()),
+        fetch(`${BASE}/api/posts`).then(r => r.json())
     ]);
     photos = photosRes;
     news = newsRes;
     familyMembers = membersRes;
     histories = historiesRes;
+    posts = postsRes;
 
     renderPhotos();
     renderNews();
     renderFamilyTree();
     renderHistories();
+    renderPosts();
 }
 
 // ========== PHOTO GALLERY ==========
@@ -47,7 +57,7 @@ async function handlePhotoUpload(e) {
     const formData = new FormData();
     files.forEach(file => formData.append('photos', file));
 
-    const res = await fetch('/api/photos', { method: 'POST', body: formData });
+    const res = await fetch(`${BASE}/api/photos`, { method: 'POST', body: formData });
     const newPhotos = await res.json();
     photos = newPhotos.concat(photos);
     renderPhotos();
@@ -62,7 +72,7 @@ function renderPhotos() {
 
     photoGallery.innerHTML = photos.map(photo => `
         <div class="gallery-item" data-id="${photo.id}">
-            <img src="/uploads/${photo.filename}" alt="${escapeHtml(photo.caption || photo.original_name)}" onclick="openLightbox('/uploads/${photo.filename}')">
+            <img src="${BASE}/uploads/${photo.filename}" alt="${escapeHtml(photo.caption || photo.original_name)}" onclick="openLightbox('${BASE}/uploads/${photo.filename}')">
             <button class="delete-btn" onclick="deletePhoto(${photo.id})">X</button>
             <div class="caption" onclick="editCaption(${photo.id})">
                 ${photo.caption ? escapeHtml(photo.caption) : '<span class="caption-placeholder">+ Add caption</span>'}
@@ -73,7 +83,7 @@ function renderPhotos() {
 
 async function deletePhoto(id) {
     if (confirm('Delete this photo?')) {
-        await fetch(`/api/photos/${id}`, { method: 'DELETE' });
+        await fetch(`${BASE}/api/photos/${id}`, { method: 'DELETE' });
         photos = photos.filter(p => p.id !== id);
         renderPhotos();
     }
@@ -95,7 +105,7 @@ async function editCaption(id) {
     if (newCaption === null) return;
 
     photo.caption = newCaption.trim();
-    await fetch(`/api/photos/${id}`, {
+    await fetch(`${BASE}/api/photos/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ caption: photo.caption })
@@ -125,7 +135,7 @@ document.getElementById('save-news').addEventListener('click', async () => {
         return;
     }
 
-    const res = await fetch('/api/news', {
+    const res = await fetch(`${BASE}/api/news`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, date, content })
@@ -161,7 +171,7 @@ function renderNews() {
 
 async function deleteNews(id) {
     if (confirm('Delete this news item?')) {
-        await fetch(`/api/news/${id}`, { method: 'DELETE' });
+        await fetch(`${BASE}/api/news/${id}`, { method: 'DELETE' });
         news = news.filter(n => n.id !== id);
         renderNews();
     }
@@ -209,7 +219,7 @@ document.getElementById('save-member').addEventListener('click', async () => {
     const data = { name, birth, death, generation, parent_id: parent_id ? parseInt(parent_id) : null, spouse };
 
     if (editingMemberId) {
-        await fetch(`/api/members/${editingMemberId}`, {
+        await fetch(`${BASE}/api/members/${editingMemberId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
@@ -218,7 +228,7 @@ document.getElementById('save-member').addEventListener('click', async () => {
         if (index !== -1) familyMembers[index] = { ...familyMembers[index], ...data };
         editingMemberId = null;
     } else {
-        const res = await fetch('/api/members', {
+        const res = await fetch(`${BASE}/api/members`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
@@ -302,7 +312,7 @@ function editMember(id) {
 
 async function deleteMember(id) {
     if (confirm('Delete this family member?')) {
-        await fetch(`/api/members/${id}`, { method: 'DELETE' });
+        await fetch(`${BASE}/api/members/${id}`, { method: 'DELETE' });
         familyMembers = familyMembers.filter(m => m.id !== id);
         renderFamilyTree();
     }
@@ -344,7 +354,7 @@ document.getElementById('save-history').addEventListener('click', async () => {
     }
 
     if (editingHistoryId) {
-        await fetch(`/api/histories/${editingHistoryId}`, {
+        await fetch(`${BASE}/api/histories/${editingHistoryId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title, era, content })
@@ -353,7 +363,7 @@ document.getElementById('save-history').addEventListener('click', async () => {
         if (index !== -1) histories[index] = { ...histories[index], title, era, content };
         editingHistoryId = null;
     } else {
-        const res = await fetch('/api/histories', {
+        const res = await fetch(`${BASE}/api/histories`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title, era, content })
@@ -408,10 +418,167 @@ function editHistory(id) {
 
 async function deleteHistory(id) {
     if (confirm('Delete this story?')) {
-        await fetch(`/api/histories/${id}`, { method: 'DELETE' });
+        await fetch(`${BASE}/api/histories/${id}`, { method: 'DELETE' });
         histories = histories.filter(h => h.id !== id);
         renderHistories();
     }
+}
+
+// ========== AUTH ==========
+
+function getAuthHeaders() {
+    const token = localStorage.getItem('authToken');
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    return headers;
+}
+
+async function checkAuth() {
+    const token = localStorage.getItem('authToken');
+    if (!token) { currentUser = null; renderAuthUI(); return; }
+    try {
+        const res = await fetch(`${BASE}/api/auth/me`, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (res.ok) {
+            const data = await res.json();
+            currentUser = data.user;
+        } else {
+            localStorage.removeItem('authToken');
+            currentUser = null;
+        }
+    } catch {
+        currentUser = null;
+    }
+    renderAuthUI();
+}
+
+async function handleLogin() {
+    const username = document.getElementById('auth-username').value.trim();
+    const password = document.getElementById('auth-password').value;
+    if (!username || !password) return showAuthError('Enter username and password');
+
+    const res = await fetch(`${BASE}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (!res.ok) return showAuthError(data.error);
+
+    localStorage.setItem('authToken', data.token);
+    currentUser = data.user;
+    document.getElementById('auth-username').value = '';
+    document.getElementById('auth-password').value = '';
+    renderAuthUI();
+    renderPosts();
+}
+
+async function handleRegister() {
+    const username = document.getElementById('auth-username').value.trim();
+    const password = document.getElementById('auth-password').value;
+    if (!username || !password) return showAuthError('Enter username and password');
+
+    const res = await fetch(`${BASE}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (!res.ok) return showAuthError(data.error);
+
+    localStorage.setItem('authToken', data.token);
+    currentUser = data.user;
+    document.getElementById('auth-username').value = '';
+    document.getElementById('auth-password').value = '';
+    renderAuthUI();
+    renderPosts();
+}
+
+async function handleLogout() {
+    await fetch(`${BASE}/api/auth/logout`, { method: 'POST', headers: getAuthHeaders() });
+    localStorage.removeItem('authToken');
+    currentUser = null;
+    renderAuthUI();
+    renderPosts();
+}
+
+function renderAuthUI() {
+    const loggedOut = document.getElementById('auth-logged-out');
+    const loggedIn = document.getElementById('auth-logged-in');
+    const postForm = document.getElementById('post-form');
+    const loginMsg = document.getElementById('post-form-login-msg');
+
+    if (currentUser) {
+        loggedOut.classList.add('hidden');
+        loggedIn.classList.remove('hidden');
+        document.getElementById('auth-user-display').textContent = currentUser.username;
+        postForm.classList.remove('hidden');
+        loginMsg.classList.add('hidden');
+    } else {
+        loggedOut.classList.remove('hidden');
+        loggedIn.classList.add('hidden');
+        postForm.classList.add('hidden');
+        loginMsg.classList.remove('hidden');
+    }
+    hideAuthError();
+}
+
+function showAuthError(msg) {
+    const el = document.getElementById('auth-error');
+    el.textContent = msg;
+    el.classList.remove('hidden');
+}
+
+function hideAuthError() {
+    document.getElementById('auth-error').classList.add('hidden');
+}
+
+// ========== MESSAGE BOARD ==========
+
+function renderPosts() {
+    const postList = document.getElementById('post-list');
+    if (posts.length === 0) {
+        postList.innerHTML = '<p class="empty-message">No posts yet. Be the first to share something!</p>';
+        return;
+    }
+
+    postList.innerHTML = posts.map(post => `
+        <div class="post-item" data-id="${post.id}">
+            ${currentUser && currentUser.id === post.user_id ? `<button class="delete-btn" onclick="deletePost(${post.id})">Delete</button>` : ''}
+            <h3>${escapeHtml(post.title)}</h3>
+            <p class="post-meta">by <strong>${escapeHtml(post.username)}</strong> &middot; ${formatDate(post.created_at)}</p>
+            <p class="post-body">${escapeHtml(post.body)}</p>
+        </div>
+    `).join('');
+}
+
+async function submitPost() {
+    const title = document.getElementById('post-title').value.trim();
+    const body = document.getElementById('post-body').value.trim();
+    if (!title || !body) { alert('Please fill in the title and message.'); return; }
+
+    const res = await fetch(`${BASE}/api/posts`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ title, body })
+    });
+    if (!res.ok) { alert('Failed to create post. Are you logged in?'); return; }
+    const post = await res.json();
+    posts.unshift(post);
+    renderPosts();
+    clearPostForm();
+}
+
+async function deletePost(id) {
+    if (!confirm('Delete this post?')) return;
+    const res = await fetch(`${BASE}/api/posts/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+    if (!res.ok) { alert('Could not delete post.'); return; }
+    posts = posts.filter(p => p.id !== id);
+    renderPosts();
+}
+
+function clearPostForm() {
+    document.getElementById('post-title').value = '';
+    document.getElementById('post-body').value = '';
 }
 
 // ========== UTILITIES ==========

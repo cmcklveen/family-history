@@ -12,28 +12,46 @@ body {
 }
 
 header {
-    background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 50%, #fd79a8 100%);
+    background: url('IMG_3961.png') center/cover;
     color: white;
-    padding: 3rem 2rem 2.5rem;
-    text-align: center;
+    padding: 2rem 2rem 2rem;
     position: relative;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
 }
 
 header::before {
     content: '';
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
-    animation: headerShimmer 8s ease-in-out infinite;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(26, 26, 46, 0.75);
+    z-index: 0;
 }
 
-@keyframes headerShimmer {
-    0%, 100% { transform: translate(0, 0); }
-    50% { transform: translate(10%, 10%); }
+.header-crest {
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+}
+
+.crest-logo {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+    border-radius: 50%;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+}
+
+.header-content {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    text-align: center;
 }
 
 header h1 {
@@ -66,9 +84,9 @@ nav {
 }
 
 .nav-link:hover {
-    background: white;
-    color: #6c5ce7;
-    border-color: white;
+    background: #C9A84C;
+    color: white;
+    border-color: #C9A84C;
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(0,0,0,0.15);
 }
@@ -100,7 +118,7 @@ main {
     margin-bottom: 1.5rem;
     padding-bottom: 0.75rem;
     border-bottom: 3px solid transparent;
-    border-image: linear-gradient(90deg, #6c5ce7, #fd79a8, #fdcb6e) 1;
+    border-image: linear-gradient(90deg, #8B1A1A, #C9A84C, #D4A017) 1;
 }
 
 /* Upload Area */
@@ -114,7 +132,7 @@ main {
 
 .upload-btn, .add-btn {
     display: inline-block;
-    background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+    background: linear-gradient(135deg, #8B1A1A 0%, #C9A84C 100%);
     color: white;
     padding: 0.75rem 1.75rem;
     border-radius: 50px;
@@ -129,8 +147,8 @@ main {
 
 .upload-btn:hover, .add-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4);
-    background: linear-gradient(135deg, #5f4dd0 0%, #9589f0 100%);
+    box-shadow: 0 6px 20px rgba(139, 26, 26, 0.4);
+    background: linear-gradient(135deg, #7A1717 0%, #B8973F 100%);
 }
 
 /* Photo Gallery */
@@ -202,7 +220,7 @@ main {
 }
 
 .gallery-item .caption:hover {
-    background: #f0f1ff;
+    background: #fdf6e8;
 }
 
 .gallery-item .caption-placeholder {
@@ -212,11 +230,11 @@ main {
 
 /* Forms */
 .form-container {
-    background: linear-gradient(135deg, #f8f9ff 0%, #f0f1ff 100%);
+    background: linear-gradient(135deg, #fdf6e8 0%, #faf0da 100%);
     padding: 2rem;
     border-radius: 16px;
     margin-bottom: 1.5rem;
-    border: 1px solid rgba(108, 92, 231, 0.15);
+    border: 1px solid rgba(139, 26, 26, 0.15);
 }
 
 .form-container.hidden {
@@ -246,8 +264,8 @@ main {
 .form-container textarea:focus,
 .form-container select:focus {
     outline: none;
-    border-color: #6c5ce7;
-    box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.1);
+    border-color: #8B1A1A;
+    box-shadow: 0 0 0 4px rgba(139, 26, 26, 0.1);
 }
 
 .form-buttons {
@@ -299,11 +317,11 @@ main {
 }
 
 .news-item {
-    background: linear-gradient(135deg, #fff 0%, #fafbff 100%);
+    background: linear-gradient(135deg, #fff 0%, #fdfaf5 100%);
     padding: 1.75rem;
     border-radius: 16px;
     border-left: 5px solid;
-    border-image: linear-gradient(180deg, #6c5ce7, #fd79a8) 1;
+    border-image: linear-gradient(180deg, #8B1A1A, #C9A84C) 1;
     position: relative;
     box-shadow: 0 2px 10px rgba(0,0,0,0.04);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -321,7 +339,7 @@ main {
 }
 
 .news-item .date {
-    color: #6c5ce7;
+    color: #8B1A1A;
     font-size: 0.85rem;
     margin-bottom: 0.75rem;
     font-weight: 500;
@@ -336,7 +354,7 @@ main {
     position: absolute;
     top: 1rem;
     right: 1rem;
-    background: linear-gradient(135deg, #e74c3c, #fd79a8);
+    background: linear-gradient(135deg, #e74c3c, #A01E2D);
     color: white;
     border: none;
     padding: 0.3rem 0.85rem;
@@ -438,17 +456,17 @@ main {
 
 .tree-member:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(108, 92, 231, 0.15);
-    border-color: #a29bfe;
+    box-shadow: 0 8px 25px rgba(201, 168, 76, 0.2);
+    border-color: #C9A84C;
 }
 
 .tree-member.has-spouse {
-    border-color: #fd79a8;
-    background: linear-gradient(135deg, #fff 0%, #fff5f8 100%);
+    border-color: #D4A017;
+    background: linear-gradient(135deg, #fff 0%, #fdf6e8 100%);
 }
 
 .tree-member.has-spouse:hover {
-    box-shadow: 0 8px 25px rgba(253, 121, 168, 0.2);
+    box-shadow: 0 8px 25px rgba(212, 160, 23, 0.25);
 }
 
 .tree-member h4 {
@@ -460,13 +478,13 @@ main {
 
 .tree-member .years {
     font-size: 0.82rem;
-    color: #6c5ce7;
+    color: #C9A84C;
     font-weight: 500;
 }
 
 .tree-member .spouse {
     font-size: 0.82rem;
-    color: #e84393;
+    color: #A01E2D;
     margin-top: 0.5rem;
     font-style: italic;
     font-weight: 500;
@@ -494,7 +512,7 @@ main {
     position: absolute;
     bottom: -10px;
     right: -6px;
-    background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+    background: linear-gradient(135deg, #8B1A1A, #C9A84C);
     color: white;
     border: none;
     padding: 0.2rem 0.7rem;
@@ -504,7 +522,7 @@ main {
     font-weight: 600;
     opacity: 0;
     transition: all 0.3s;
-    box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
+    box-shadow: 0 2px 8px rgba(139, 26, 26, 0.3);
 }
 
 .tree-member:hover .delete-btn,
@@ -520,13 +538,13 @@ main {
 }
 
 .history-item {
-    background: linear-gradient(135deg, #fff 0%, #f8f9ff 100%);
+    background: linear-gradient(135deg, #fff 0%, #fdfaf5 100%);
     padding: 2rem;
     border-radius: 16px;
     position: relative;
     box-shadow: 0 2px 12px rgba(0,0,0,0.04);
     border-left: 5px solid;
-    border-image: linear-gradient(180deg, #fdcb6e, #e17055) 1;
+    border-image: linear-gradient(180deg, #C9A84C, #8B1A1A) 1;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -544,7 +562,7 @@ main {
 
 .history-era {
     display: inline-block;
-    background: linear-gradient(135deg, #fdcb6e, #f39c12);
+    background: linear-gradient(135deg, #C9A84C, #D4A017);
     color: white;
     padding: 0.2rem 0.85rem;
     border-radius: 50px;
@@ -575,7 +593,7 @@ main {
 }
 
 .history-actions .edit-btn {
-    background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+    background: linear-gradient(135deg, #8B1A1A, #C9A84C);
     color: white;
     border: none;
     padding: 0.3rem 0.85rem;
@@ -586,7 +604,7 @@ main {
 }
 
 .history-actions .delete-btn {
-    background: linear-gradient(135deg, #e74c3c, #fd79a8);
+    background: linear-gradient(135deg, #e74c3c, #A01E2D);
     color: white;
     border: none;
     padding: 0.3rem 0.85rem;
@@ -604,6 +622,155 @@ main {
     font-size: 1.05rem;
 }
 
+/* Auth Area */
+#auth-area {
+    position: relative;
+    margin: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#auth-logged-out,
+#auth-logged-in {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+#auth-area input {
+    padding: 0.5rem 0.85rem;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-radius: 50px;
+    font-size: 0.88rem;
+    font-family: 'Inter', sans-serif;
+    background: rgba(255,255,255,0.15);
+    color: white;
+    outline: none;
+    width: 150px;
+    transition: all 0.3s ease;
+}
+
+#auth-area input::placeholder {
+    color: rgba(255,255,255,0.6);
+}
+
+#auth-area input:focus {
+    border-color: #C9A84C;
+    background: rgba(255,255,255,0.25);
+}
+
+.auth-btn {
+    padding: 0.5rem 1.2rem;
+    border: 2px solid #C9A84C;
+    border-radius: 50px;
+    background: #C9A84C;
+    color: #1a1a2e;
+    font-size: 0.88rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.auth-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.auth-btn-alt {
+    background: transparent;
+    color: #C9A84C;
+    border-color: #C9A84C;
+}
+
+.auth-btn-alt:hover {
+    background: rgba(201, 168, 76, 0.2);
+}
+
+#auth-user-display {
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+}
+
+.auth-error {
+    color: #fdcb6e;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.auth-error.hidden,
+#auth-logged-out.hidden,
+#auth-logged-in.hidden {
+    display: none;
+}
+
+/* Post Items */
+.post-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.post-item {
+    background: linear-gradient(135deg, #fff 0%, #fdfaf5 100%);
+    padding: 1.75rem;
+    border-radius: 16px;
+    border-left: 5px solid;
+    border-image: linear-gradient(180deg, #8B1A1A, #C9A84C) 1;
+    position: relative;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.post-item:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.post-item h3 {
+    color: #2d3436;
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+}
+
+.post-meta {
+    font-size: 0.82rem;
+    color: #C9A84C;
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+}
+
+.post-body {
+    line-height: 1.7;
+    color: #636e72;
+    white-space: pre-wrap;
+}
+
+.post-item .delete-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: linear-gradient(135deg, #e74c3c, #A01E2D);
+    color: white;
+    border: none;
+    padding: 0.3rem 0.85rem;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 600;
+    opacity: 0;
+    transition: all 0.3s;
+}
+
+.post-item:hover .delete-btn {
+    opacity: 1;
+}
+
 /* Footer */
 footer {
     text-align: center;
@@ -617,7 +784,14 @@ footer {
 /* Responsive */
 @media (max-width: 768px) {
     header {
-        padding: 2rem 1.5rem;
+        flex-direction: column;
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .crest-logo {
+        width: 100px;
+        height: 100px;
     }
 
     header h1 {

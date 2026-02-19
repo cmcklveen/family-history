@@ -1,14 +1,17 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const Database = require('better-sqlite3');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 
 const app = express();
 const PORT = 8080;
 
 // Middleware
-app.use(express.json({ limit: '50mb' }));
+app.use(bodyParser.json({ limit: '50mb' }));
 app.use(express.static(__dirname));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -60,6 +63,28 @@ db.exec(`
         title TEXT NOT NULL,
         era TEXT DEFAULT '',
         content TEXT NOT NULL,
+        created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL UNIQUE,
+        password_hash TEXT NOT NULL,
+        created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS sessions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES users(id),
+        token TEXT NOT NULL UNIQUE,
+        created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS posts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES users(id),
+        title TEXT NOT NULL,
+        body TEXT NOT NULL,
         created_at TEXT DEFAULT (datetime('now'))
     );
 `);
@@ -164,6 +189,96 @@ app.put('/api/histories/:id', (req, res) => {
 
 app.delete('/api/histories/:id', (req, res) => {
     db.prepare('DELETE FROM histories WHERE id = ?').run(req.params.id);
+    res.json({ ok: true });
+});
+
+// ========== AUTH HELPERS ==========
+
+function getUser(token) {
+    if (!token) return null;
+    const row = db.prepare(
+        'SELECT users.id, users.username FROM sessions JOIN users ON users.id = sessions.user_id WHERE sessions.token = ?'
+    ).get(token);
+    return row || null;
+}
+
+function requireAuth(req, res, next) {
+    const header = req.headers.authorization || '';
+    const token = header.startsWith('Bearer ') ? header.slice(7) : '';
+    const user = getUser(token);
+    if (!user) return res.status(401).json({ error: 'Not authenticated' });
+    req.user = user;
+    next();
+}
+
+// ========== AUTH API ==========
+
+app.post('/api/auth/register', (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) return res.status(400).json({ error: 'Username and password required' });
+    if (username.length < 2 || username.length > 30) return res.status(400).json({ error: 'Username must be 2-30 characters' });
+    if (password.length < 4) return res.status(400).json({ error: 'Password must be at least 4 characters' });
+
+    const existing = db.prepare('SELECT id FROM users WHERE username = ?').get(username);
+    if (existing) return res.status(409).json({ error: 'Username already taken' });
+
+    const hash = bcrypt.hashSync(password, 10);
+    const info = db.prepare('INSERT INTO users (username, password_hash) VALUES (?, ?)').run(username, hash);
+    const token = crypto.randomBytes(32).toString('hex');
+    db.prepare('INSERT INTO sessions (user_id, token) VALUES (?, ?)').run(info.lastInsertRowid, token);
+    res.json({ token, user: { id: info.lastInsertRowid, username } });
+});
+
+app.post('/api/auth/login', (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) return res.status(400).json({ error: 'Username and password required' });
+
+    const user = db.prepare('SELECT * FROM users WHERE username = ?').get(username);
+    if (!user || !bcrypt.compareSync(password, user.password_hash)) {
+        return res.status(401).json({ error: 'Invalid username or password' });
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    db.prepare('INSERT INTO sessions (user_id, token) VALUES (?, ?)').run(user.id, token);
+    res.json({ token, user: { id: user.id, username: user.username } });
+});
+
+app.post('/api/auth/logout', (req, res) => {
+    const header = req.headers.authorization || '';
+    const token = header.startsWith('Bearer ') ? header.slice(7) : '';
+    if (token) db.prepare('DELETE FROM sessions WHERE token = ?').run(token);
+    res.json({ ok: true });
+});
+
+app.get('/api/auth/me', (req, res) => {
+    const header = req.headers.authorization || '';
+    const token = header.startsWith('Bearer ') ? header.slice(7) : '';
+    const user = getUser(token);
+    if (!user) return res.status(401).json({ error: 'Not authenticated' });
+    res.json({ user });
+});
+
+// ========== POSTS API ==========
+
+app.get('/api/posts', (req, res) => {
+    const posts = db.prepare(
+        'SELECT posts.*, users.username FROM posts JOIN users ON users.id = posts.user_id ORDER BY posts.created_at DESC'
+    ).all();
+    res.json(posts);
+});
+
+app.post('/api/posts', requireAuth, (req, res) => {
+    const { title, body } = req.body;
+    if (!title || !body) return res.status(400).json({ error: 'Title and body required' });
+    const info = db.prepare('INSERT INTO posts (user_id, title, body) VALUES (?, ?, ?)').run(req.user.id, title, body);
+    res.json({ id: info.lastInsertRowid, user_id: req.user.id, username: req.user.username, title, body, created_at: new Date().toISOString() });
+});
+
+app.delete('/api/posts/:id', requireAuth, (req, res) => {
+    const post = db.prepare('SELECT * FROM posts WHERE id = ?').get(req.params.id);
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+    if (post.user_id !== req.user.id) return res.status(403).json({ error: 'Not your post' });
+    db.prepare('DELETE FROM posts WHERE id = ?').run(req.params.id);
     res.json({ ok: true });
 });
 
